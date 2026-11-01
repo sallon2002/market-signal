@@ -120,6 +120,11 @@ const shared = {
       const d = dev(n.price, n.sma20);
       return { value: fmt(n.price), light: d >= 0.5 ? "g" : d > -0.5 ? "y" : "r", detail: `20일선 ${fmt(n.sma20)} 대비 ${signed(d)}%` };
     }),
+  liquidity: () =>
+    ind({ key: "liq", name: "미국 순유동성 (13주)", hint: "연준 자산 − TGA − 역레포의 13주 변화: 증가 초록 · -1,000억 달러까지 노랑 · 그 이상 감소 빨강", source: "FRED WALCL · WTREGEN · RRPONTSYD" }, () => {
+      const l = M("netLiquidity");
+      return { value: `${signed(l.change13w, 0)}B`, light: l.change13w > 0 ? "g" : l.change13w >= -100 ? "y" : "r", detail: `잔액 $${fmt(l.value / 1000, 2)}T · ${md(l.date)}` };
+    }),
   event: () =>
     ind({ key: "event", name: "큰 이벤트 (★4 이상)", hint: "3일 안에 없으면 초록 · 있으면 노랑 · 당일이면 빨강 (정지)", source: "자동 일정 + data/events.json" }, () => {
       const first = upcoming().find((e) => e.stars >= BIG_STARS);
@@ -177,6 +182,37 @@ const ASSETS = [
       ind({ key: "y10s", name: "금리 부담 (미 10년물)", hint: "초록 4.5% 미만 · 노랑 4.5~5.0% · 빨강 5.0% 초과", source: "야후 ^TNX" }, () => {
         const t = M("us10y");
         return { value: `${t.price.toFixed(2)}%`, light: low(t.price, 4.5, 5.0), detail: `1주 전 ${t.weekAgo.toFixed(2)}%` };
+      }),
+      ind({ key: "breadth", name: "시장 폭 (200일선 위 종목)", hint: "초록 60% 초과 또는 20% 미만 (투매 후 바닥권) · 노랑 40~60% · 빨강 20~40%", source: "S&P 500 구성 종목 직접 계산" }, () => {
+        const b = M("breadth");
+        const light = b.pct < 20 || b.pct > 60 ? "g" : b.pct >= 40 ? "y" : "r";
+        return { value: `${b.pct.toFixed(1)}%`, light, detail: `${b.total}개 종목 중 200일선 위 비율` };
+      }),
+      ind({ key: "riskon", name: "위험 선호 (경기소비재·소형주)", hint: "XLY/XLP · IWM/SPY 둘 다 200일선 위 초록 · 둘 다 아래 빨강 · 엇갈리면 노랑", source: "야후 XLY · XLP · IWM · SPY" }, () => {
+        const { discretionary: d, smallCap: s } = M("riskOn");
+        const light = d.vs200 > 0 && s.vs200 > 0 ? "g" : d.vs200 < 0 && s.vs200 < 0 ? "r" : "y";
+        return { value: `${signed(d.vs200)}% · ${signed(s.vs200)}%`, light, detail: "경기소비재/필수소비재 · 소형주/대형주, 200일선 대비" };
+      }),
+      ind({ key: "cg", name: "구리/금 비율", hint: "200일선 위면 초록 (경기 낙관) · 50일선만 위 노랑 · 둘 다 아래 빨강", source: "야후 HG=F · GC=F" }, () => {
+        const c = M("copperGold");
+        return { value: `${signed(c.vs200)}%`, light: c.vs200 > 0 ? "g" : c.vs50 > 0 ? "y" : "r", detail: `200일선 대비 · 50일선 대비 ${signed(c.vs50)}%` };
+      }),
+      ind({ key: "claims", name: "실업수당 청구 (4주 평균)", hint: "52주 최저 대비 10% 미만 초록 · 10~20% 노랑 · 20% 초과 빨강 (해고 증가)", source: "FRED IC4WSA" }, () => {
+        const c = M("claimsTrend");
+        return { value: fmt(c.value), light: low(c.vsLow, 9.99, 20), detail: `52주 최저 ${fmt(c.low)} 대비 ${signed(c.vsLow)}%` };
+      }),
+      ind({ key: "recess", name: "경기침체 확률", hint: "초록 20% 미만 · 노랑 20~35% · 빨강 35% 초과", source: "Kalshi 예측시장 (NBER 판정)" }, () => {
+        const r = M("recession");
+        return { value: `${Math.round(r.prob)}%`, light: r.prob < 20 ? "g" : r.prob <= 35 ? "y" : "r", detail: `${r.year}년 경기침체 선언 확률` };
+      }),
+      shared.liquidity(),
+      ind({ key: "season", name: "대통령 임기 주기", hint: "중간선거 해 10월~이듬해 4월 초록 · 중간선거 해 5~9월 빨강 · 그 밖 노랑", source: "S&P 500 과거 월별 수익률" }, () => {
+        const now = new Date(Date.now() + 9 * 3_600_000);
+        const y = now.getUTCFullYear() % 4;
+        const m = now.getUTCMonth() + 1;
+        const light = (y === 2 && m >= 10) || (y === 3 && m <= 4) ? "g" : y === 2 && m >= 5 ? "r" : "y";
+        const phase = ["대선 해", "임기 1년차", "중간선거 해", "대선 전해"][y];
+        return { value: phase, light, detail: light === "g" ? "중간선거 해 10월→4월: 최근 10회 모두 상승, 평균 +11.8%" : "역사적으로 가장 강한 구간은 중간선거 해 10월~이듬해 4월" };
       }),
       shared.fomc(),
       shared.cpi(),
@@ -253,6 +289,26 @@ const ASSETS = [
         const t = M("us10y");
         return { value: `${t.price.toFixed(2)}%`, light: low(t.price, 4.8, 5.2), detail: `1주 전 대비 ${signed((t.price - t.weekAgo) * 100, 0)}bp` };
       }),
+      ind({ key: "netflow", name: "거래소 순유출입 (30일)", hint: "-2만 BTC 미만 초록 (거래소에서 빠져나감 = 보유) · ±2만 노랑 · +2만 초과 빨강 (매도 대기)", source: "CoinMetrics FlowIn/OutExNtv" }, () => {
+        const c = M("chainFlows");
+        return { value: `${signed(c.netflow30d / 1000)}k BTC`, light: c.netflow30d < -20_000 ? "g" : c.netflow30d <= 20_000 ? "y" : "r", detail: `${md(c.date)} 기준 · 최근값은 수정될 수 있음` };
+      }),
+      ind({ key: "ribbon", name: "해시 리본 (채굴자)", hint: "항복 뒤 회복(30일선이 60일선 재돌파) 초록 · 항복 중 빨강 · 평상시 노랑", source: "CoinMetrics HashRate" }, () => {
+        const c = M("chainFlows");
+        const light = c.recovered ? "g" : c.capitulation ? "r" : "y";
+        return { value: c.ribbon.toFixed(3), light, detail: c.recovered ? "최근 60일 안에 항복 후 회복" : c.capitulation ? "채굴자 항복 진행 중" : "항복 신호 없음" };
+      }),
+      ind({ key: "lev", name: "레버리지 (미결제약정·롱숏)", hint: "가격↓인데 미결제약정 30일 +10%↑ 또는 롱숏 2배 초과 빨강 · 약정 -10% 청산 + 롱숏 1 미만 초록", source: "OKX 선물 통계" }, () => {
+        const l = M("leverage");
+        const crowded = (l.oiChange30d > 10 && l.priceChange30d < 0) || l.longShort > 2;
+        const flushed = l.oiChange30d < -10 && l.longShort < 1;
+        return { value: `${signed(l.oiChange30d)}% · ${l.longShort.toFixed(2)}`, light: crowded ? "r" : flushed ? "g" : "y", detail: `미결제약정 $${l.oi}B · 가격 30일 ${signed(l.priceChange30d)}% · 롱숏 계정 비율` };
+      }),
+      ind({ key: "skew", name: "옵션 스큐 (풋−콜 IV)", hint: "+5 초과 초록 (풋이 비쌈 = 공포, 역발상) · -2~5 노랑 · -2 미만 빨강 (콜 과열)", source: "데리비트 옵션 (약 30일 만기)" }, () => {
+        const o = M("options");
+        return { value: `${signed(o.skew)}`, light: o.skew > 5 ? "g" : o.skew >= -2 ? "y" : "r", detail: `${o.expiry} 만기 · 풋 ${o.putIv} / 콜 ${o.callIv} · DVOL ${o.dvol}` };
+      }),
+      shared.liquidity(),
       shared.fomc(),
       shared.ndx(),
       shared.event(),
@@ -307,6 +363,33 @@ const ASSETS = [
       ind({ key: "labor", name: "고용 둔화 (샴 룰)", hint: "0.3 이상이면 초록 (경기 둔화 = 금리 하락 압력) · 그 아래 노랑", source: "FRED SAHMREALTIME" }, () => {
         const s = M("sahm");
         return { value: s.value.toFixed(2), light: s.value >= 0.3 ? "g" : "y", detail: `${s.date.slice(0, 7)} 기준` };
+      }),
+      ind({ key: "rff", name: "실질 기준금리", hint: "기준금리 − CPI: 1.5%p 초과 초록 (긴축적 → 인하 여지) · 0~1.5 노랑 · 0 미만 빨강", source: "FRED DFF · CPIAUCSL" }, () => {
+        const r = M("realFedFunds");
+        return { value: `${signed(r.real, 2)}%p`, light: r.real > 1.5 ? "g" : r.real >= 0 ? "y" : "r", detail: `기준금리 ${r.ff.toFixed(2)}% − CPI ${r.cpi.toFixed(2)}%` };
+      }),
+      ind({ key: "oil", name: "유가 (WTI)", hint: "200일선 아래 초록 · 0~10% 위 노랑 · 10% 넘게 위 빨강 (물가 압력)", source: "야후 CL=F" }, () => {
+        const o = M("oil");
+        const d = dev(o.price, o.sma200);
+        return { value: `$${o.price.toFixed(2)}`, light: d < 0 ? "g" : d <= 10 ? "y" : "r", detail: `200일선 $${o.sma200.toFixed(2)} 대비 ${signed(d)}%` };
+      }),
+      ind({ key: "curve", name: "커브 국면 (4주)", hint: "10년물 +10bp 넘게 오르면 빨강 (베어) · 아니면서 2년물 -10bp 넘게 내리면 초록 (불) · 그 밖 노랑", source: "FRED DGS2 · DGS10 · T10Y2Y" }, () => {
+        const c = M("curveRegime");
+        const light = c.tenChg > 0.1 ? "r" : c.twoChg < -0.1 ? "g" : "y";
+        return { value: `2s10s ${c.spread.toFixed(2)}`, light, detail: `4주 변화 2년 ${signed(c.twoChg * 100, 0)}bp · 10년 ${signed(c.tenChg * 100, 0)}bp` };
+      }),
+      ind({ key: "auction", name: "국채 입찰 수요", hint: "딜러 인수 8% 미만 + 해외 수요 70% 초과 초록 · 딜러 15% 초과 또는 응찰률 2.3 미만 빨강", source: "TreasuryDirect 최근 10·30년물" }, () => {
+        const { ten, thirty } = M("auctionDemand");
+        const list = [ten, thirty].filter(Boolean);
+        if (!list.length) return null;
+        const bad = list.some((a) => a.dealers > 15 || a.bidToCover < 2.3);
+        const good = list.every((a) => a.dealers < 8 && a.indirect > 70);
+        const fmtA = (a, label) => `${label} 응찰 ${a.bidToCover} · 딜러 ${a.dealers}% · 해외 ${a.indirect}%`;
+        return { value: bad ? "약함" : good ? "강함" : "보통", light: bad ? "r" : good ? "g" : "y", detail: [ten && fmtA(ten, "10년"), thirty && fmtA(thirty, "30년")].filter(Boolean).join(" / ") };
+      }),
+      ind({ key: "fivey", name: "장기 기대인플레 (5y5y)", hint: "초록 2.4% 미만 (닻 내림) · 노랑 2.4~2.7% · 빨강 2.7% 초과", source: "FRED T5YIFR" }, () => {
+        const f = M("fiveYFiveY");
+        return { value: `${f.value.toFixed(2)}%`, light: f.value < 2.4 ? "g" : f.value <= 2.7 ? "y" : "r", detail: `4주 전 ${f.past.toFixed(2)}%` };
       }),
       shared.fomc(),
       shared.cpi(),
@@ -412,12 +495,15 @@ function indicatorCard(i) {
 const stars = (n) => `<span class="stars" aria-label="중요도 ${n}점">${"★".repeat(n)}<i>${"★".repeat(5 - n)}</i></span>`;
 
 function eventsCard() {
-  const list = upcoming().slice(0, 14);
+  // 매주 나오는 ★2 이하(실업수당 청구 · 월물 옵션 만기 등)는 목록을 덮으니 숨긴다
+  const list = upcoming()
+    .filter((e) => (e.stars ?? 0) >= 3)
+    .slice(0, 12);
   return `
     <section class="panel">
-      <p class="label">EVENT RADAR</p>
+      <p class="label">EVENT RADAR · AUTO</p>
       <h2 class="h2">다가오는 이벤트</h2>
-      <p class="muted">한국 시간 · ★${BIG_STARS} 이상이 3일 안이면 HOLD, 당일이면 모든 자산 STOP</p>
+      <p class="muted">BLS · BEA · 연준 공식 일정에서 30분마다 자동 갱신 · 한국 시간 · ★3 이상만 표시<br />★${BIG_STARS} 이상이 3일 안이면 HOLD, 당일이면 모든 자산 STOP</p>
       <ul class="events">
         ${
           list.length

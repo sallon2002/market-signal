@@ -25,7 +25,8 @@ async function yahoo(symbol, range = "1y") {
   const price = r.meta.regularMarketPrice;
   const ago = (n) => closes[closes.length - 1 - n];
   const sma = (n) => (closes.length >= n ? round(avg(closes.slice(-n))) : null);
-  return { price: round(price), sma20: sma(20), sma50: sma(50), sma200: sma(200), weekAgo: round(ago(5)), monthAgo: round(ago(21)) };
+  // 장중이면 마지막 종가가 곧 현재가라, 하루 전 종가(ago(1))와 비교하면 장중·장마감 모두 일간 등락이 된다
+  return { price: round(price), dayAgo: round(ago(1)), sma20: sma(20), sma50: sma(50), sma200: sma(200), weekAgo: round(ago(5)), monthAgo: round(ago(21)) };
 }
 
 // FRED 시계열 — 최신값과 날짜, 비교용 과거값

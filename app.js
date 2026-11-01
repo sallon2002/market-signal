@@ -35,11 +35,11 @@ async function loadLive() {
   const tasks = {
     btc: async () => {
       const [t, k] = await Promise.all([
-        getJson("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT"),
+        getJson("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"),
         getJson("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=4"),
       ]);
       // 마지막 봉은 진행 중인 오늘이라 빼고 끝난 3일 종가만
-      return { price: Number(t.price), closes: k.slice(0, -1).map((c) => Number(c[4])) };
+      return { price: Number(t.lastPrice), change: Number(t.priceChangePercent), closes: k.slice(0, -1).map((c) => Number(c[4])) };
     },
     upbit: async () => (await getJson("https://api.upbit.com/v1/ticker?markets=KRW-BTC"))[0].trade_price,
     fng: async () => {
@@ -68,14 +68,16 @@ async function loadLive() {
 }
 
 async function loadMacro() {
-  const [macro, manual, events] = await Promise.allSettled([
+  const [macro, manual, events, calendar] = await Promise.allSettled([
     getJson("data/macro.json"),
     getJson("data/manual.json"),
     getJson("data/events.json"),
+    getJson("data/calendar.json"),
   ]);
   if (macro.status === "fulfilled") state.macro = macro.value;
   if (manual.status === "fulfilled") state.manual = manual.value;
   if (events.status === "fulfilled") state.events = events.value;
+  if (calendar.status === "fulfilled") state.calendar = calendar.value.events ?? [];
 }
 
 // ---------- 지표 ----------
@@ -119,24 +121,32 @@ const shared = {
       return { value: fmt(n.price), light: d >= 0.5 ? "g" : d > -0.5 ? "y" : "r", detail: `20일선 ${fmt(n.sma20)} 대비 ${signed(d)}%` };
     }),
   event: () =>
-    ind({ key: "event", name: "큰 이벤트", hint: "3일 안에 없으면 초록 · 있으면 노랑 · 당일이면 빨강 (정지)", source: "data/events.json" }, () => {
-      const first = upcoming()[0];
+    ind({ key: "event", name: "큰 이벤트 (★4 이상)", hint: "3일 안에 없으면 초록 · 있으면 노랑 · 당일이면 빨강 (정지)", source: "자동 일정 + data/events.json" }, () => {
+      const first = upcoming().find((e) => e.stars >= BIG_STARS);
       const light = first?.dday === 0 ? "r" : first && first.dday <= 3 ? "y" : "g";
-      return { value: first ? (first.dday === 0 ? "오늘" : `D-${first.dday}`) : "없음", light, detail: first ? first.name : "등록된 일정 없음" };
+      return { value: first ? (first.dday === 0 ? "오늘" : `D-${first.dday}`) : "없음", light, detail: first ? `${first.name} ${"★".repeat(first.stars)}` : "등록된 일정 없음" };
     }),
 };
 
+// 신호등에 반영하는 이벤트 중요도 기준 — 그 아래는 목록에만 보인다
+const BIG_STARS = 4;
+
+/** 자동 수집 일정(data/calendar.json) + 손으로 넣은 일정(data/events.json). 같은 날 같은 이름이면 손으로 넣은 쪽이 이긴다 */
 function upcoming() {
   const today = todayKst();
-  return state.events
+  const merged = new Map();
+  for (const e of state.calendar ?? []) merged.set(`${e.date}|${e.name}`, e);
+  for (const e of state.events) merged.set(`${e.date}|${e.name}`, { stars: 3, ...e });
+  return [...merged.values()]
     .map((e) => ({ ...e, dday: daysBetween(today, e.date) }))
     .filter((e) => e.dday >= 0)
-    .sort((a, b) => a.dday - b.dday);
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.time ?? "").localeCompare(b.time ?? ""));
 }
 
 const ASSETS = [
   {
     id: "stocks",
+    code: "SEC-01 EQUITY",
     label: "미국 주식",
     sub: "S&P 500 · 나스닥",
     indicators: () => [
@@ -176,6 +186,7 @@ const ASSETS = [
   },
   {
     id: "crypto",
+    code: "SEC-02 CRYPTO",
     label: "코인",
     sub: "비트코인 기준",
     live: true,
@@ -259,6 +270,7 @@ const ASSETS = [
   },
   {
     id: "bonds",
+    code: "SEC-03 RATES",
     label: "미 장기채",
     sub: "10년물 · TLT",
     indicators: () => [
@@ -335,66 +347,137 @@ function evaluate(asset) {
 // ---------- 그리기 ----------
 
 const LABEL = { g: "초록", y: "노랑", r: "빨강" };
+const TAG = { g: "GO", y: "HOLD", r: "STOP" };
+
+function gauge(score, big = false) {
+  const r = 46;
+  const c = 2 * Math.PI * r;
+  const off = c * (1 - (score ?? 0) / 100);
+  return `
+    <div class="gauge${big ? " big" : ""}">
+      <svg viewBox="0 0 108 108" aria-hidden="true">
+        <circle class="track" cx="54" cy="54" r="${r}" fill="none" stroke-width="7"/>
+        <circle class="arc" cx="54" cy="54" r="${r}" fill="none" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+      </svg>
+      <div class="num"><b>${score ?? "—"}</b><small>/ 100</small></div>
+    </div>`;
+}
 
 function bar(c) {
-  const total = c.g + c.y + c.r || 1;
-  return `<div class="bar" aria-hidden="true">${["g", "y", "r"].map((l) => `<span class="${l}" style="width:${(c[l] / total) * 100}%"></span>`).join("")}</div>`;
+  return `<div class="bar" aria-hidden="true">${["g", "y", "r"].map((l) => (c[l] ? `<span class="${l}" style="flex:${c[l]}"></span>` : "")).join("")}</div>`;
 }
 
 function counts(c) {
-  return `<p class="counts">초록 <b class="t-g">${c.g}</b> · 노랑 <b class="t-y">${c.y}</b> · 빨강 <b class="t-r">${c.r}</b>${c.unknown ? ` · 확인 불가 ${c.unknown}` : ""}</p>`;
+  return `<p class="counts">GO <b class="t-g">${c.g}</b> · HOLD <b class="t-y">${c.y}</b> · STOP <b class="t-r">${c.r}</b>${c.unknown ? ` · N/A ${c.unknown}` : ""}</p>`;
+}
+
+/** 점수를 끌어내리는 빨강 지표 이름 */
+function drag(list) {
+  const reds = list.filter((i) => i.light === "r").map((i) => i.name);
+  return reds.length ? `<p class="drag">발목 잡는 지표 · <b>${reds.map(esc).join(", ")}</b></p>` : "";
 }
 
 function summaryCard(asset, e) {
   return `
-    <button class="card summary tone-${e.verdict.tone ?? "n"}" data-go="${asset.id}">
-      <div class="row">
-        <div><h2>${asset.label}</h2><p class="muted">${asset.sub}</p></div>
-        <div class="score"><span>${e.score ?? "—"}</span><small>/100</small></div>
+    <button class="panel summary tone-${e.verdict.tone ?? "n"}" data-go="${asset.id}">
+      <div class="sum-head">
+        <div>
+          <p class="label">${asset.code}</p>
+          <h2 class="h2">${asset.label}</h2>
+          <p class="muted">${asset.sub}</p>
+          <p class="verdict">${esc(e.verdict.title)}</p>
+        </div>
+        ${gauge(e.score)}
       </div>
-      <p class="verdict">${esc(e.verdict.title)}</p>
       ${bar(e.counts)}
       ${counts(e.counts)}
+      ${drag(e.list)}
     </button>`;
 }
 
 function indicatorCard(i) {
+  const t = i.light ?? "n";
   return `
-    <article class="card ind tone-${i.light ?? "n"}">
-      <div class="row"><h3>${esc(i.name)}</h3><span class="chip c-${i.light ?? "n"}">${i.light ? LABEL[i.light] : "확인 불가"}</span></div>
-      <p class="value">${esc(i.value)}</p>
-      ${i.detail ? `<p class="detail">${esc(i.detail)}</p>` : ""}
-      <p class="hint">${esc(i.hint)}</p>
-      <p class="src">${esc(i.source)}</p>
+    <article class="panel ind tone-${t}">
+      <div class="ind-top"><span class="led"></span><h3 class="ind-name">${esc(i.name)}</h3><span class="tag">${i.light ? TAG[i.light] : "N/A"}</span></div>
+      <p class="ind-value">${esc(i.value)}</p>
+      ${i.detail ? `<p class="ind-detail">${esc(i.detail)}</p>` : ""}
+      <div class="ind-foot">
+        <p class="hint">${esc(i.hint)}</p>
+        <p class="src">// ${esc(i.source)}</p>
+      </div>
     </article>`;
 }
 
+const stars = (n) => `<span class="stars" aria-label="중요도 ${n}점">${"★".repeat(n)}<i>${"★".repeat(5 - n)}</i></span>`;
+
 function eventsCard() {
-  const list = upcoming();
+  const list = upcoming().slice(0, 14);
   return `
-    <section class="card">
-      <h2>다가오는 이벤트</h2>
-      <p class="muted">한국 시간 기준 · 3일 안이면 노랑, 당일이면 모든 자산에 정지 신호</p>
+    <section class="panel">
+      <p class="label">EVENT RADAR</p>
+      <h2 class="h2">다가오는 이벤트</h2>
+      <p class="muted">한국 시간 · ★${BIG_STARS} 이상이 3일 안이면 HOLD, 당일이면 모든 자산 STOP</p>
       <ul class="events">
-        ${list.length ? list.map((e) => `<li><span class="chip c-${e.dday === 0 ? "r" : e.dday <= 3 ? "y" : "n"}">${e.dday === 0 ? "오늘" : `D-${e.dday}`}</span><span class="date">${md(e.date)}</span><span>${esc(e.name)}</span></li>`).join("") : "<li class=muted>남은 일정이 없습니다</li>"}
+        ${
+          list.length
+            ? list
+                .map((e) => {
+                  const big = e.stars >= BIG_STARS;
+                  const cls = big && e.dday === 0 ? "r" : big && e.dday <= 3 ? "y" : "";
+                  return `<li>
+                    <span class="dday ${cls}">${e.dday === 0 ? "TODAY" : `D-${e.dday}`}</span>
+                    <span class="when">${md(e.date)}</span>
+                    <span class="ev-name">${esc(e.name)}${e.time ? `<small>${esc(e.time)} KST</small>` : ""}</span>
+                    ${stars(e.stars ?? 0)}
+                  </li>`;
+                })
+                .join("")
+            : `<li class="muted">남은 일정이 없습니다</li>`
+        }
       </ul>
     </section>`;
 }
 
 const RULES = `
-  <section class="card">
-    <h2>판정 규칙</h2>
+  <section class="panel">
+    <p class="label">DECISION LOGIC</p>
+    <h2 class="h2">판정 규칙</h2>
     <ol class="rules">
-      <li><b>점수</b> = (초록 + 노랑×0.5) ÷ 확인된 지표 수 × 100</li>
-      <li><b>정지</b>: 큰 이벤트 당일 (모든 자산), 하이일드 스프레드 빨강 (주식), 10년물 5.2% 초과 (코인)</li>
+      <li><b>점수</b> = (GO + HOLD×0.5) ÷ 확인된 지표 수 × 100</li>
+      <li><b>STOP</b>: ★${BIG_STARS} 이상 이벤트 당일 (모든 자산), 하이일드 스프레드 빨강 (주식), 10년물 5.2% 초과 (코인)</li>
       <li><b>바닥권</b> (코인): BTC 62k 이하 + 극단적 공포, 또는 MVRV Z 0 미만</li>
-      <li><b>85점 이상 · 빨강 0</b> 강한 매수 → 남은 회차 앞당기기 검토</li>
+      <li><b>85점 이상 · STOP 0</b> 강한 매수 → 남은 회차 앞당기기 검토</li>
       <li><b>75점 이상</b> 매수 → 계획 회차 실행</li>
       <li><b>60~74점</b> 부분 → 날짜가 된 회차만</li>
       <li><b>60점 미만</b> 대기 → 다음 점검일까지</li>
     </ol>
     <p class="muted">투자 자문이 아니라 미리 정한 규칙을 기계적으로 적용한 점검표입니다. 최종 판단은 본인 몫입니다.</p>
   </section>`;
+
+/** 위쪽 시세 띠 — 같은 묶음을 두 번 이어 붙여 끊김 없이 흐르게 */
+function ticker() {
+  const v = state.macro?.values ?? {};
+  const items = [];
+  const push = (k, price, change, digits = 2) => {
+    if (price === undefined || price === null) return;
+    const cls = change === null || Math.abs(change) < 0.005 ? "flat" : change > 0 ? "up" : "down";
+    const arrow = cls === "up" ? "▲" : cls === "down" ? "▼" : "■";
+    items.push(`<span class="tk"><span class="k">${k}</span>${fmt(price, digits)}${change === null ? "" : ` <span class="${cls}">${arrow}${Math.abs(change).toFixed(2)}%</span>`}</span>`);
+  };
+  const y = (key) => (v[key] ? [v[key].price, v[key].dayAgo ? dev(v[key].price, v[key].dayAgo) : null] : [null, null]);
+  if (state.live.btc) push("BTC", state.live.btc.price, state.live.btc.change ?? null, 0);
+  if (state.live.upbit) push("BTC/KRW", state.live.upbit, null, 0);
+  push("S&P500", ...y("sp500"));
+  push("NASDAQ", ...y("nasdaq"));
+  push("US10Y", ...y("us10y"), 3);
+  push("VIX", ...y("vix"));
+  push("DXY", ...y("dxy"));
+  push("USD/KRW", ...y("usdkrw"), 1);
+  push("TLT", ...y("tlt"));
+  const row = items.join("");
+  return row + row;
+}
 
 function render() {
   const results = ASSETS.map((a) => ({ asset: a, e: evaluate(a) }));
@@ -409,29 +492,37 @@ function render() {
   } else {
     const { asset, e } = results.find((r) => r.asset.id === tab) ?? results[0];
     html += `
-      <section class="card hero tone-${e.verdict.tone ?? "n"}">
-        <div class="row">
+      <section class="panel hero tone-${e.verdict.tone ?? "n"}">
+        <div class="hero-row">
           <div>
-            <p class="muted">${asset.label} · ${asset.sub}</p>
+            <p class="label">${asset.code} · ${asset.label} · ${asset.sub}</p>
             <h2 class="verdict-big">${esc(e.verdict.title)}</h2>
             <p class="desc">${esc(e.verdict.desc)}</p>
           </div>
-          <div class="score big"><span>${e.score ?? "—"}</span><small>/100</small></div>
+          ${gauge(e.score, true)}
         </div>
         ${bar(e.counts)}
         ${counts(e.counts)}
+        ${drag(e.list)}
       </section>
       <div class="grid3">${e.list.map(indicatorCard).join("")}</div>`;
   }
   $("#main").innerHTML = html;
 
+  const track = $("#ticker");
+  const t = ticker();
+  if (track.dataset.html !== t) {
+    track.innerHTML = t;
+    track.dataset.html = t;
+  }
+
   const macroAt = state.macro?.collectedAt ? new Date(state.macro.collectedAt) : null;
   $("#stamp").innerHTML = [
-    state.liveAt ? `<span class="live"></span>코인 실시간 ${state.liveAt.toLocaleTimeString("ko-KR")}` : "",
-    macroAt ? `거시 지표 ${macroAt.toLocaleString("ko-KR", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })} 수집` : "",
+    state.liveAt ? `<span class="pulse"></span>LIVE <b>${state.liveAt.toTimeString().slice(0, 8)}</b>` : "",
+    macroAt ? `MACRO <b>${macroAt.getMonth() + 1}/${macroAt.getDate()} ${macroAt.toTimeString().slice(0, 5)}</b>` : "",
   ]
     .filter(Boolean)
-    .join(" · ");
+    .join(" &nbsp;·&nbsp; ");
 }
 
 // ---------- 시작 ----------

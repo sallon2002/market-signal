@@ -5,37 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>매수 신호등</title>
     <meta name="description" content="미국 주식 · 코인 · 미 장기채 매수 시점을 지표 신호등으로 점검" />
-    <meta name="theme-color" content="#0d1014" />
+    <meta name="theme-color" content="#04060b" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-    <link rel="stylesheet" href="styles.css?v=1" />
+    <link rel="stylesheet" href="styles.css?v=2" />
   </head>
   <body>
-    <header class="top">
-      <div class="brand">
-        <span class="logo" aria-hidden="true"><i class="g"></i><i class="y"></i><i class="r"></i></span>
-        <div>
-          <h1>매수 신호등</h1>
-          <p id="stamp" class="muted">불러오는 중…</p>
+    <div class="backdrop" aria-hidden="true"></div>
+    <div class="wrap">
+      <header class="hud">
+        <div class="brand">
+          <span class="logo" aria-hidden="true"><i class="g"></i><i class="y"></i><i class="r"></i></span>
+          <div>
+            <p class="kicker">MARKET SIGNAL // BUY-TIMING CONSOLE</p>
+            <h1>매수 신호등</h1>
+          </div>
         </div>
-      </div>
+        <p id="stamp" class="stamp">SYNCING…</p>
+      </header>
+
+      <div class="ticker" aria-label="주요 시세"><div class="ticker-track" id="ticker"></div></div>
+
       <nav class="tabs" aria-label="자산 선택">
-        <button data-tab="all">종합</button>
-        <button data-tab="stocks">미국 주식</button>
-        <button data-tab="crypto">코인</button>
-        <button data-tab="bonds">미 장기채</button>
+        <button data-tab="all"><span>00</span>종합</button>
+        <button data-tab="stocks"><span>01</span>미국 주식</button>
+        <button data-tab="crypto"><span>02</span>코인</button>
+        <button data-tab="bonds"><span>03</span>미 장기채</button>
       </nav>
-    </header>
-    <main id="main">
-      <div class="grid3"><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div></div>
-    </main>
-    <footer class="foot muted">
-      코인 시세는 30초마다, 거시 지표(야후 · FRED · Kalshi · CoinMetrics · DefiLlama)는 30분마다 갱신됩니다.<br />
-      투자 자문이 아닌 개인 점검용 신호등입니다.
-    </footer>
-    <script src="app.js?v=1"></script>
+
+      <main id="main">
+        <div class="grid3"><div class="panel skeleton"></div><div class="panel skeleton"></div><div class="panel skeleton"></div></div>
+      </main>
+
+      <footer class="foot">
+        코인 시세는 30초마다, 거시 지표(야후 · FRED · Kalshi · CoinMetrics · DefiLlama)와 일정은 30분마다 갱신됩니다.<br />
+        투자 자문이 아닌 개인 점검용 신호등입니다.
+      </footer>
+    </div>
+    <script src="app.js?v=2"></script>
   </body>
 </html>

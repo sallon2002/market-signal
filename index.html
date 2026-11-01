@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>매수 신호등</title>
+    <meta name="description" content="미국 주식 · 코인 · 미 장기채 매수 시점을 지표 신호등으로 점검" />
+    <meta name="theme-color" content="#0d1014" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="styles.css?v=1" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"><i class="g"></i><i class="y"></i><i class="r"></i></span>
+        <div>
+          <h1>매수 신호등</h1>
+          <p id="stamp" class="muted">불러오는 중…</p>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="자산 선택">
+        <button data-tab="all">종합</button>
+        <button data-tab="stocks">미국 주식</button>
+        <button data-tab="crypto">코인</button>
+        <button data-tab="bonds">미 장기채</button>
+      </nav>
+    </header>
+    <main id="main">
+      <div class="grid3"><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div></div>
+    </main>
+    <footer class="foot muted">
+      코인 시세는 30초마다, 거시 지표(야후 · FRED · Kalshi · CoinMetrics · DefiLlama)는 30분마다 갱신됩니다.<br />
+      투자 자문이 아닌 개인 점검용 신호등입니다.
+    </footer>
+    <script src="app.js?v=1"></script>
+  </body>
+</html>

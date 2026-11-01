@@ -1,0 +1,705 @@
+{
+ "savedAt": "2026-11-01T11:48:27.480Z",
+ "events": [
+  {
+   "date": "2025-01-08",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-01-10",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-01-14",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-01-15",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-01-31",
+   "time": "22:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-02-05",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-02-07",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-02-12",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-02-13",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-03-07",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-03-11",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-03-12",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-03-13",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-04-01",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-04-04",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-04-10",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-04-11",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-04-29",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-04-30",
+   "time": "21:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-05-02",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-05-13",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-05-15",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-06-03",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-06-06",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-06-11",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-06-12",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-07-01",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-07-03",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-07-15",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-07-16",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-07-29",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-07-31",
+   "time": "21:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-08-01",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-08-12",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-08-14",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-09-03",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-09-05",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-09-10",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-09-11",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-09-30",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-10-24",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-11-20",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-11-25",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-12-10",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-12-10",
+   "time": "22:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-12-16",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2025-12-18",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-01-08",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-01-09",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-01-13",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-01-14",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-01-30",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-02-06",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-02-10",
+   "time": "22:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-02-11",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-02-13",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-02-27",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-03-06",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-03-11",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-03-13",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-03-18",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-03-31",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-04-03",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-04-10",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-04-14",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-04-30",
+   "time": "21:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-05-05",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-05-08",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-05-12",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-05-13",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-06-02",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-06-05",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-06-10",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-06-11",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-06-30",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-07-02",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-07-14",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-07-15",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-07-31",
+   "time": "21:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-08-04",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-08-07",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-08-12",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-08-13",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-09-01",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-09-04",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-09-10",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-09-11",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-09-29",
+   "time": "23:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-10-02",
+   "time": "21:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-10-14",
+   "time": "21:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-10-15",
+   "time": "21:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-10-30",
+   "time": "21:30",
+   "name": "미국 고용비용지수",
+   "stars": 2,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-11-04",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-11-06",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-11-10",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-11-13",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-12-02",
+   "time": "00:00",
+   "name": "미국 JOLTS 구인",
+   "stars": 3,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-12-04",
+   "time": "22:30",
+   "name": "미국 고용보고서 (비농업 고용)",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-12-10",
+   "time": "22:30",
+   "name": "미국 CPI",
+   "stars": 5,
+   "src": "BLS"
+  },
+  {
+   "date": "2026-12-15",
+   "time": "22:30",
+   "name": "미국 PPI",
+   "stars": 3,
+   "src": "BLS"
+  }
+ ]
+}

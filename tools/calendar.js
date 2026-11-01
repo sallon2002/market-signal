@@ -53,7 +53,22 @@ const BLS = [
   [/^Employment Cost Index$/, "미국 고용비용지수", 2],
 ];
 
+// BLS 는 GitHub 서버(데이터센터 IP)를 막는다(403). 집 PC 에서 받을 때마다 사본을 남겨 두고, 막히면 사본을 쓴다.
+const BLS_COPY = path.join(__dirname, "..", "data", "bls-schedule.json");
+
 async function bls() {
+  let out;
+  try {
+    out = await blsLive();
+    fs.writeFileSync(BLS_COPY, JSON.stringify({ savedAt: new Date().toISOString(), events: out }, null, 1));
+  } catch (err) {
+    out = JSON.parse(fs.readFileSync(BLS_COPY, "utf8")).events;
+    console.error(`  BLS 직접 수집 실패(${err.message}) → 저장해 둔 사본 사용`);
+  }
+  return out;
+}
+
+async function blsLive() {
   const ics = (await text("https://www.bls.gov/schedule/news_release/bls.ics")).replace(/\r?\n[ \t]/g, ""); // 접힌 줄 펴기
   const out = [];
   for (const block of ics.split("BEGIN:VEVENT").slice(1)) {
@@ -115,6 +130,26 @@ async function auctions() {
     });
 }
 
+// Kalshi 지표 시장: 마감 직후가 발표 시각(08:29 마감 → 08:30 발표). BLS 사본이 아직 없는 다음 해 일정을 메운다
+const KALSHI = [
+  ["KXPAYROLLS", "미국 고용보고서 (비농업 고용)", 5],
+  ["KXCPI", "미국 CPI", 5],
+  ["KXUSPPI", "미국 PPI", 3],
+];
+
+async function kalshi() {
+  const out = [];
+  for (const [series, name, stars] of KALSHI) {
+    const json = JSON.parse(await text(`https://api.elections.kalshi.com/trade-api/v2/events?series_ticker=${series}&status=open&with_nested_markets=true`));
+    for (const e of json.events) {
+      const close = Math.min(...e.markets.map((m) => Date.parse(m.close_time)));
+      const release = Math.ceil(close / 1_800_000) * 1_800_000; // 30분 단위로 올림
+      out.push({ ...utcToKst(release), name, stars, src: "Kalshi" });
+    }
+  }
+  return out;
+}
+
 // 규칙으로 만드는 일정
 function rules(today) {
   const out = [];
@@ -149,28 +184,29 @@ async function main() {
     previous = JSON.parse(fs.readFileSync(OUT, "utf8")).events || [];
   } catch {}
 
-  const sources = { bls, bea, fomc, auctions };
-  const events = rules(today);
+  // 순서가 우선순위: 같은 날 같은 이름이면 앞쪽(공식 일정)이 남는다
+  const sources = { bls, bea, fomc, auctions, kalshi };
   const failed = [];
-  await Promise.all(
+  const results = await Promise.all(
     Object.entries(sources).map(async ([key, load]) => {
       try {
-        events.push(...(await load()));
+        return await load();
       } catch (err) {
         failed.push(key);
         console.error(`✗ 일정 ${key}: ${err.message}`);
         // 실패한 출처는 직전 수집분을 이어 쓴다
-        const label = { bls: "BLS", bea: "BEA", fomc: "Fed", auctions: "Treasury" }[key];
-        events.push(...previous.filter((e) => e.src === label));
+        const label = { bls: "BLS", bea: "BEA", fomc: "Fed", auctions: "Treasury", kalshi: "Kalshi" }[key];
+        return previous.filter((e) => e.src === label);
       }
     })
   );
+  const events = [...results.flat(), ...rules(today)];
 
   const seen = new Set();
   const list = events
     .filter((e) => e.date >= today && e.date <= until)
     .filter((e) => {
-      const k = `${e.date}|${e.time}|${e.name}`;
+      const k = `${e.date}|${e.name}`;
       return seen.has(k) ? false : seen.add(k);
     })
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
